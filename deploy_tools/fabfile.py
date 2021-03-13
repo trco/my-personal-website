@@ -3,7 +3,7 @@ from fabric.contrib.files import append, exists
 from fabric.api import cd, env, local, run
 
 
-REPO_URL = 'https://github.com/trco/trco.si'
+REPO_URL = 'https://github.com/trco/my-personal-website'
 
 
 def deploy():
