@@ -13,6 +13,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = env('DEBUG')
 SECRET_KEY = env('SECRET_KEY')
 ALLOWED_HOSTS = [
+    'staging.trco.silkym.com',
+    'www.staging.trco.silkym.com'
     'trco.silkym.com',
     'www.trco.silkym.com',
     '127.0.0.1'
