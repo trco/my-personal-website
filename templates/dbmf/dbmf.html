@@ -10,7 +10,7 @@
     <div class="row justify-content-center">
       <section class="col-lg-12 text-center">
 
-        <h1 class="my-4">Django Bootstrap Modal Forms <span>v1.5.0</span></h1>
+        <h1 class="my-4">Django Bootstrap Modal Forms <span>v2.1.0</span></h1>
         <p class="subtitle">A Django plugin for creating AJAX driven forms in Bootstrap modal.</p>
         <a href="https://github.com/trco/django-bootstrap-modal-forms" target="_blank" style="text-decoration: none;">
           <svg style="" viewbox="0 0 64 64" width="32" height="32">
@@ -57,60 +57,28 @@
 
         <article class="row justify-content-center">
 
-          <div class="col-12 mb-3">
-            <button class="create-book btn btn-primary" type="button" name="button">
-              <span class="fa fa-plus mr-2"></span>Create book</button>
-          </div>
-
-          <div class="col-auto mb-3">
-            {% if books %}
-              <table class="table table-responsive">
-                <thead>
-                  <tr>
-                    <th class="text-center" scope="col">#</th>
-                    <th class="text-center" scope="col">Title</th>
-                    <th class="text-center" scope="col">Author</th>
-                    <th class="text-center" scope="col">Type</th>
-                    <th class="text-center" scope="col">Publication date</th>
-                    <th class="text-center" scope="col">Pages</th>
-                    <th class="text-center" scope="col">Price (€)</th>
-                    <th class="text-center" scope="col"></th>
-                    <th class="text-center" scope="col"></th>
-                    <th class="text-center" scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for book in books %}
-                    <tr>
-                      <th class="text-center" scope="row">{{ forloop.counter }}</th>
-                      <td class="text-center">{{ book.title }}</td>
-                      <td class="text-center">{{ book.author }}</td>
-                      <td class="text-center">{{ book.get_book_type_display }}</td>
-                      <td class="text-center">{{ book.publication_date }}</td>
-                      <td class="text-center">{{ book.pages }}</td>
-                      <td class="text-center">{{ book.price }}</td>
-                      <td class="text-center px-1">
-                        <button type="button" class="read-book btn btn-sm btn-primary" data-id="{% url 'dbmf:read_book' book.pk %}">
-                          <span class="fa fa-eye"></span>
-                        </button>
-                      </td>
-                      <td class="text-center px-1">
-                        <button type="button" class="update-book btn btn-sm btn-primary" data-id="{% url 'dbmf:update_book' book.pk %}">
-                          <span class="fa fa-pencil"></span>
-                        </button>
-                      </td>
-                      <td class="text-center px-1">
-                        <button type="button" class="delete-book btn btn-sm btn-danger" data-id="{% url 'dbmf:delete_book' book.pk %}">
-                          <span class="fa fa-trash"></span>
-                        </button>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            {% else %}
-              <p class="text-primary">No books added yet.</p>
+          <div class="row">
+            <div class="col-12 mb-3">
+              <button id="create-book-sync" class="btn btn-primary" type="button" name="button">
+                <span class="fa fa-plus mr-2"></span>Create book - Synchronous
+              </button>
+              <button id="create-book-async" class="btn btn-primary" type="button" name="button">
+                <span class="fa fa-plus mr-2"></span>Create book - Asynchronous
+              </button>
+              <button id="filter-book" class="filter-book btn btn-primary" type="button" name="button" data-form-url="{% url 'dbmf:filter_book' %}">
+                <span class="fa fa-filter mr-2"></span>Filter books
+              </button>
+            </div>
+            <div class="col-12 mb-3">
+            {% if 'type' in request.GET %}
+              <p class="filtered-books">Filtered books.</p>
             {% endif %}
+              {% if books %}
+                {% include "dbmf/_books_table.html" %}
+              {% else %}
+                <p class="no-books text-primary">No books added yet.</p>
+              {% endif %}
+            </div>
           </div>
 
         </article>
@@ -136,34 +104,97 @@
         formURL: "{% url 'accounts:signup' %}"
       });
 
-      // create book button
-      $(".create-book").modalForm({
-        modalID: "#modal-crud",
-        formURL: "{% url 'dbmf:create_book' %}"
-      });
-
-      // update book buttons
-      $(".update-book").each(function () {
-        $(this).modalForm({
-          modalID: "#modal-crud",
-          formURL: $(this).data('id')
+      // Create book synchronous
+      function createBookSyncModalForm() {
+        $("#create-book-sync").modalForm({
+            formURL: "{% url 'dbmf:create_book' %}",
+            modalID: "#create-modal"
         });
-      });
+      }
+      createBookSyncModalForm();
 
-      // read book buttons
-      $(".read-book").each(function () {
-        $(this).modalForm({
-          modalID: "#modal-crud",
-          formURL: $(this).data('id')
+      // Create book asynchronous button
+      // message
+      var asyncSuccessMessageCreate = [
+        "<div ",
+        "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+        "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+        "Success: Book was created.",
+        "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+        "<span aria-hidden='true'>&times;</span>",
+        "</button>",
+        "</div>",
+        "<script>",
+        "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+        "<\/script>"
+      ].join("");
+
+      // modal form
+      function createBookAsyncModalForm() {
+        $("#create-book-async").modalForm({
+            formURL: "{% url 'dbmf:create_book' %}",
+            modalID: "#create-modal",
+            asyncUpdate: true,
+            asyncSettings: {
+              closeOnSubmit: true,
+              successMessage: asyncSuccessMessageCreate,
+              dataUrl: "books/",
+              dataElementId: "#books-table",
+              dataKey: "table",
+              addModalFormFunction: updateBookModalForm
+            }
         });
-      });
+      }
+      createBookAsyncModalForm();
 
-      // delete book buttons
+      // Update book asynchronous button
+      // message
+      var asyncSuccessMessageUpdate = [
+        "<div ",
+        "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+        "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+        "Success: Book was updated.",
+        "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+        "<span aria-hidden='true'>&times;</span>",
+        "</button>",
+        "</div>",
+        "<script>",
+        "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
+        "<\/script>"
+      ].join("");
+
+      // modal form
+      function updateBookModalForm() {
+        $(".update-book").each(function () {
+          $(this).modalForm({
+            formURL: $(this).data("form-url"),
+            asyncUpdate: true,
+            asyncSettings: {
+              closeOnSubmit: false,
+              successMessage: asyncSuccessMessageUpdate,
+              dataUrl: "books/",
+              dataElementId: "#books-table",
+              dataKey: "table",
+              addModalFormFunction: updateBookModalForm
+            }
+          });
+        });
+      }
+      updateBookModalForm();
+
+      // Delete book buttons - formURL is retrieved from the data of the element
       $(".delete-book").each(function () {
-        $(this).modalForm({
-          modalID: "#modal-crud",
-          formURL: $(this).data('id')
-        });
+          $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+      });
+
+      // Read book buttons
+      $(".read-book").each(function () {
+          $(this).modalForm({formURL: $(this).data("form-url")});
+      });
+
+      // Filter books button
+      $("#filter-book").each(function () {
+          $(this).modalForm({formURL: $(this).data("form-url")});
       });
 
       // hide message
