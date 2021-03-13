@@ -14,10 +14,7 @@ DEBUG = env('DEBUG')
 SECRET_KEY = env('SECRET_KEY')
 ALLOWED_HOSTS = [
     'trco.silkym.com',
-    'www.trco.silkym.com',
-    '127.0.0.1',
-    'staging.trco.silkym.com',
-    'www.staging.trco.silkym.com'
+    '127.0.0.1'
 ]
 
 # Application definition
