@@ -141,7 +141,7 @@
               dataUrl: "books/",
               dataElementId: "#books-table",
               dataKey: "table",
-              addModalFormFunction: updateBookModalForm
+              addModalFormFunction: reinstantiateModalForms
             }
         });
       }
@@ -175,7 +175,7 @@
               dataUrl: "books/",
               dataElementId: "#books-table",
               dataKey: "table",
-              addModalFormFunction: updateBookModalForm
+              addModalFormFunction: reinstantiateModalForms
             }
           });
         });
@@ -183,14 +183,28 @@
       updateBookModalForm();
 
       // Delete book buttons - formURL is retrieved from the data of the element
-      $(".delete-book").each(function () {
+      function deleteBookModalForm() {
+        $(".delete-book").each(function () {
           $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
-      });
+        });
+      }
+      deleteBookModalForm();
+
 
       // Read book buttons
-      $(".read-book").each(function () {
-          $(this).modalForm({formURL: $(this).data("form-url")});
-      });
+      function readBookModalForm() {
+        $(".read-book").each(function () {
+            $(this).modalForm({formURL: $(this).data("form-url")});
+        });
+      }
+      readBookModalForm();
+
+      function reinstantiateModalForms() {
+        createBookAsyncModalForm();
+        readBookModalForm();
+        updateBookModalForm();
+        deleteBookModalForm();
+      }
 
       // Filter books button
       $("#filter-book").each(function () {
