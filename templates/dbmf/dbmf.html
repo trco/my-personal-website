@@ -73,11 +73,7 @@
             {% if 'type' in request.GET %}
               <p class="filtered-books">Filtered books.</p>
             {% endif %}
-              {% if books %}
-                {% include "dbmf/_books_table.html" %}
-              {% else %}
-                <p class="no-books text-primary">No books added yet.</p>
-              {% endif %}
+            {% include "dbmf/_books_table.html" %}
             </div>
           </div>
 
