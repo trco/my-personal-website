@@ -1,4 +1,4 @@
-Django==2.1.7
+Django==2.2.24
 django-bootstrap-modal-forms==2.1.0
 django-environ==0.4.5
 django-extra-views==0.12.0
